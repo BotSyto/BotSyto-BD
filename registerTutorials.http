@@ -1,6 +1,6 @@
 @api = http://localhost:5000
 
-GET {{api}}/tutorial/rp
+GET {{api}}/tutorial/tutorial
 Content-Type: application/json
 
 [
