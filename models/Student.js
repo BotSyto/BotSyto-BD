@@ -8,6 +8,13 @@ const StudentSchema = new Schema({
     email: String,
     password: String,
     phone: Number,
+    kind: Boolean,
+    description: String,
+    average: Map,
+    meets: Number,
+    tutorials: Array,    //[id_tutorial,..]
+    // ciclo: Number,
+    // facultad: String
 });
 
 const Student = mongoose.model('Student', StudentSchema);

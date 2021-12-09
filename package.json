@@ -5,16 +5,14 @@
   "main": "index.js",
   "dependencies": {
     "bcrypt": "^5.0.1",
-    "dotenv": "^10.0.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
+    "i": "^0.3.7",
     "mongoose": "^6.0.12",
     "request": "^2.88.2"
   },
-  "devDependencies": {
-    "nodemon": "^2.0.15"
-  },
   "scripts": {
-    "devstart": "nodemon ./server.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC"

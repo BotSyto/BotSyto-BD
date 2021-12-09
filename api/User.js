@@ -1,9 +1,10 @@
 const User = require("./../models/User");
+const Student = require("./../models/Student");
+const Tutor = require("../models/Tutor");
 const express = require("express");
 const router = express.Router();
 
 const bcrypt = require("bcrypt");
-
 //Signup
 router.post('/signup', (req, res) => {
     let {
@@ -14,7 +15,7 @@ router.post('/signup', (req, res) => {
         phone,
         kind,
     } = req.body
-    name = name.trim();
+    name = name.toString().trim();
     lastname = lastname.trim();
     email = email.trim();
     password = password.trim();
@@ -23,39 +24,41 @@ router.post('/signup', (req, res) => {
         lastname == "" ||
         email == "" ||
         password == "" ||
-        phone == "" ||
-        kind == ""
+        phone == "" 
     ) {
+
         res.json({
             status: "FAILED",
             message: "Hay campos vacios",
         });
-    }else if (!/^[a-zA-Z ]*$/.test(name)) {
-        res.json({
-            status: "FAILED",
-            message: "Nombre invalido",
-        });
-    }
-    else {
-        User.find({ email }).then((result) => {
-            if (result.length) {
+    } else {
+
+        var UserType = kind == 0 ? Student : Tutor;
+
+        UserType.find({
+            phone
+        }).then((result) => {
+            if (result.length != 0) {
                 res.json({
                     status: "FAILED",
-                    message: " Ya existe un usuario registrado con ese correo."
+                    message: " Ya existe un usuario registrado con ese numero."
                 });
-            }
-            else {
-                const id_user = phone //Generar Id de usuario
-                const saltnum = 5 
-                bcrypt.hash(password,saltnum).then((bcPassword) => {
-                    const newUser = new User({
-                        id_user,
+            } else {
+                const id_student = phone //generar un id
+                const saltnum = 5
+                bcrypt.hash(password, saltnum).then((bcPassword) => {
+                    const newUser = new UserType({
+                        id_student,
                         name,
                         lastname,
                         email,
                         password: bcPassword,
                         phone,
                         kind,
+                        // description: "student",
+                        // average: {},
+                        // meets: 1,
+                        // tutorial: [1],
                     });
                     newUser.save().then((result) => {
                         res.json({
@@ -66,14 +69,14 @@ router.post('/signup', (req, res) => {
                     }).catch((err) => {
                         res.json({
                             status: "FAILED",
-                            message: "Error al guardar nuevo usuario"
+                            message: "Error al guardar."
                         });
                     });
 
                 }).catch((err) => {
                     res.json({
                         status: "FAILED",
-                        message: "Error en hasheo de password"
+                        message: "Error en hasheo."
                     });
                 });
             }
@@ -81,7 +84,7 @@ router.post('/signup', (req, res) => {
         }).catch((err) => {
             res.json({
                 status: "FAILED",
-                message: "Error al verificar existencias"
+                message: "Error al Verificar"
             });
         });
     }
@@ -91,17 +94,25 @@ router.post('/signup', (req, res) => {
 
 //Signin
 router.post('/signin', (req, res) => {
-    let { email, password } = req.body
-    email = email.trim();
-    password = password.trim();
+    let {
+        email,
+        password,
+        kind
+    } = req.body;
+    console.log(email);
+    console.log(password);
+    email = email.toString().trim();
+    password = password.toString().trim();
     if (email == "" || password == "") {
         res.json({
             status: "FAILED",
             message: "Hay campos vacios",
         });
-    }
-    else {
-        User.find({ email })
+    } else {
+        var Tabla = kind == 0 ? Student : Tutor;
+        Tabla.find({
+               "email":email
+            })
             .then((resultUser) => {
                 if (resultUser.length == 0) {
                     res.json({
@@ -110,8 +121,7 @@ router.post('/signin', (req, res) => {
                     });
                 } else {
                     const extPassword = resultUser[0].password;
-                    bcrypt
-                        .compare(password, extPassword)
+                    bcrypt.compare(password, extPassword)
                         .then((result) => {
                             if (result) {
                                 // Password match
@@ -143,10 +153,12 @@ router.post('/signin', (req, res) => {
                 });
 
             });
+
+
     }
 })
 
 module.exports = router;
 
 
-// curl -d '{\"name\":\"Stal\",\"lastname\":\"edq\",\"email\":\"stal@gmail.com\",\"password\":\"pass\",\"phone\":123,\"kind\":1}' -X POST http://localhost:5000/user/signup
+// curl -d '{\"name\":\"Stal\",\"lastname\":\"edq\",\"email\":\"stal@gmail.com\",\"password\":\"pass\",\"phone\":123,\"kind\":1}' -X POST http://localhost:5000
